@@ -27,8 +27,8 @@ jobs:
         include:
           - os: ubuntu-latest
             sccache-path: /home/runner/.cache/sccache
-          - os: macos-latest
-            sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
+          # - os: macos-latest
+          #   sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
         # exclude:
         #   - os: macos-latest
         #     rust: stable
