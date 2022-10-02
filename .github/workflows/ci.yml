@@ -63,7 +63,7 @@ jobs:
           profile: minimal
           override: true
       - name: Install just
-      - uses: extractions/setup-just@v1
+        uses: extractions/setup-just@v1
         with:
           just-version: latest
       - name: Cache cargo registry
