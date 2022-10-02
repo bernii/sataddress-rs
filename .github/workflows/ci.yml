@@ -15,7 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        rust: [stable]
+        # change to stable once imports_granularity is in stable
+        rust: [nightly]
         make:
           - name: Build
             task: "build"
