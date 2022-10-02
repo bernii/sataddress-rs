@@ -17,12 +17,12 @@ jobs:
         os: [ubuntu-latest]
         rust: [stable]
         make:
-          - name: Clippy
-            task: "check-clippy"
+          - name: Build
+            task: "build"
           - name: Unit tests
-            task: "build-all-test run-all-unit-test"
-          - name: Doc tests
-            task: "run-all-doc-test"
+            task: "test"
+          # - name: Doc tests
+          #   task: "run-all-doc-test"
         include:
           - os: ubuntu-latest
             sccache-path: /home/runner/.cache/sccache
@@ -87,7 +87,7 @@ jobs:
       - name: Start sccache server
         run: sccache --start-server
       - name: ${{ matrix.make.name }}
-        run: make ${{ matrix.make.task }}
+        run: just ${{ matrix.make.task }}
       - name: Print sccache stats
         run: sccache --show-stats
       - name: Stop sccache server

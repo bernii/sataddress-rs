@@ -8,7 +8,10 @@ build:
     @echo "Building the binary..."
     cargo +nightly fmt -v
     cargo clippy --fix
-    @echo "binary ready" 
+    @echo "binaries ready"
+
+test:
+    @echo "TODO: testing not implemented yet!"
 
 db_init:
     @echo "Initializing the db with data..."
