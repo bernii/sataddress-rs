@@ -101,7 +101,7 @@ pub async fn lnurl(
         }
         None => {
             // no amount provided, different payload
-            
+
             // TODO: support webhook comments
             let min_sendable = params.min_sendable.unwrap_or(defaults::MIN_SENDABLE);
             let max_sendable = params.max_sendable.unwrap_or(defaults::MAX_SENDABLE);

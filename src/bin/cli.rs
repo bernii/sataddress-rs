@@ -82,10 +82,7 @@ fn db_init(path: PathBuf) {
             }
         }
     }
-    println!(
-        "[{}] Fixture loaded successfully",
-        Colour::Green.paint("✓")
-    );
+    println!("[{}] Fixture loaded successfully", Colour::Green.paint("✓"));
 }
 
 fn db_dump(path: PathBuf) {
