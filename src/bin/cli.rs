@@ -105,8 +105,6 @@ fn banner(quote: &str) {
         █░░░░█░░░░█░░░█
         ▀█▄░▀▀█▀█▀░░▄█▀
         ──▀▀█▄▄▄▄▄█▀▀──";
-    println!(
-        "{}",
-        format!("{:-^34}\n{}\n", quote, Colour::Yellow.paint(BTC))
-    );
+    let text = format!("{:-^34}\n{}\n", quote, Colour::Yellow.paint(BTC));
+    println!("{}", text);
 }

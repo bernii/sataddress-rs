@@ -18,7 +18,7 @@ jobs:
         rust: [stable]
         make:
           - name: Build
-            task: "build"
+            task: "check"
           - name: Unit tests
             task: "test"
           # - name: Doc tests
