@@ -7,7 +7,7 @@ WORKDIR /opt
 # cache dependencies separately
 RUN USER=root cargo new --bin sataddress
 WORKDIR /opt/sataddress
-COPY ./Cargo.lock ./Cargo.lock
+# COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 RUN sed -i '/default-run/d' ./Cargo.toml
 
