@@ -99,7 +99,7 @@ pub mod models {
 
     impl InvoiceAPI {
         pub fn is_tor(&self) -> bool {
-            match &*self {
+            match self {
                 InvoiceAPI::Lnd(p) => p.host.contains(".onion"),
                 InvoiceAPI::LNBits(p) => p.host.contains(".onion"),
             }
@@ -112,7 +112,7 @@ pub mod models {
             // - if we use memo client wallet complains that there's no desc_hash
             // - if we use unhashed_desc, there's no memo visible on lnbits when recieving
             // sending from LND works though as it does not expect unhashed_desc, ugh
-            match &*self {
+            match self {
                 InvoiceAPI::Lnd(_) => 128,
                 InvoiceAPI::LNBits(_) => 0,
             }
