@@ -2,7 +2,7 @@ default:
     @just --list
 
 dev:
-    RUST_BACKTRACE=1 DOMAINS=extensa.pl,sats.rs PIN_SECRET=my-secret-phrase SITE_NAME=SATADDRESS cargo run
+    RUST_BACKTRACE=1 DOMAINS=extensa.pl,sats.rs PIN_SECRET=my-secret-phrase SITE_NAME=SATADDRESS SITE_SUB_NAME=.rs cargo run
 
 build:
     @echo "Building the binary..."

@@ -30,12 +30,14 @@ use askama::Template;
 struct IndexTemaplte<'a> {
     domains: &'a Vec<String>,
     site_name: &'a str,
+    site_sub_name: &'a str,
 }
 
 pub async fn index(config: Config) -> Result<impl warp::Reply, warp::Rejection> {
     let i_template = IndexTemaplte {
         domains: &config.domains.into(),
         site_name: &config.site_name,
+        site_sub_name: &config.site_sub_name,
     };
     let body = i_template.render().unwrap();
     Ok(warp::reply::html(body))

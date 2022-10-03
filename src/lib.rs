@@ -21,6 +21,7 @@ pub struct Config {
     pub pin_secret: String,
 
     pub site_name: String,
+    pub site_sub_name: String,
     #[envconfig(default = "socks5://127.0.0.1:9050")]
     pub tor_proxy_url: Uri,
     // pub inv_banner: Option<String>,
