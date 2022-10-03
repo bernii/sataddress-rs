@@ -11,6 +11,8 @@ debug = 2
 debug = 1
 incremental = true
 lto = "off"
+# results in final image that's 1/4 of size
+strip = true
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }

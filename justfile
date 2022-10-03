@@ -18,6 +18,10 @@ check:
     # cargo clippy --locked -- -D warnings
     @echo "Checking done"
 
+build:
+    @echo "Building a docker release..."
+    docker build -t sataddress:latest .
+
 test:
     @echo "TODO: testing not implemented yet!"
 
