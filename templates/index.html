@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>{{ site_name }} - your easy bitcoin lightinng network alias</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="static/img/favicon.png" rel="icon">
+  <link href="static/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Roboto:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="static/vendor/aos/aos.css" rel="stylesheet">
+  <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="static/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <link href="static/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="static/css/style.css" rel="stylesheet">
+
+ </head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top ">
+    <div class="container d-flex align-items-center justify-content-between">
+      <h1 id="logo" class="logo"><a href="index.html">{{ site_name }}<span>{{ site_sub_name }}</span></a></h1>
+
+      <nav id="navbar" class="navbar">
+        <ul>
+          <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
+          <li><a class="nav-link scrollto" href="#about">About</a></li>
+          <li><a class="nav-link scrollto" href="#faq">FAQ</a></li>
+          <li><a class="nav-link" href="https://docs.rs">Docs</a></li>
+          <li><a class="nav-link" href="https://github.com/bernii">GitHub</a></li>
+          <li><a class="getstarted scrollto" href="#about">Get Started</a></li>
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+
+    </div>
+  </header><!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+  <section id="hero" class="d-flex align-items-center">
+
+    <div class="container-fluid" data-aos="fade-up">
+      <div class="row justify-content-center">
+        <div class="col-xl-5 col-lg-6 pt-3 pt-lg-0 order-2 order-lg-1 d-flex flex-column justify-content-center">
+          <h1>Easy bitcoin wallet alias</h1>
+          <h2>Make ⚡ Lightning Network ⚡ payments quick & efortless</h2>
+  
+          <div id="submit-form">
+
+            <form action="/grab" method="post" @submit.prevent="onSubmit">
+              <div class="field">
+                <div class="row">
+                  <label for="name"> ${usernameInfo}$ </label>
+                </div>
+                <div class="domain-wrapper">
+                  <input class="input" name="name" id="name" placeholder="yourname" />
+                  <span>@</span>
+
+                  <details class="custom-select" :class="{disabled: domains.length == 1}">
+                    <summary class="radios">
+                      <input v-for="(domain, i) in domains" type="radio" name="domain" :id="'domain' + i" :title="domain" :value="domain"  :checked="i == 0" />
+                    </summary>
+                    <ul class="list">
+                      <li v-for="(domain, i) in domains">
+                        <label :for="'domain' + i">
+                          ${ domain }$
+                          <span></span>
+                        </label>
+                      </li>
+                    </ul>
+                  </details>
+                
+                </div>
+              </div>
+              <div class="field">
+                <span>Node backend type</span>
+                <details class="custom-select">
+                  <summary class="radios">
+                    <input type="radio" name="backend" id="default" title="Backend type..." value="Backend type..." checked v-model="kind">
+                    <input type="radio" name="backend" id="item1" title="LND" value="LND" v-model="kind">
+                    <input type="radio" name="backend" id="item2" title="LNBits" value="LNBits" v-model="kind">
+                  </summary>
+                  <ul class="list">
+                    <li>
+                      <label for="item1">
+                        LND
+                        <span></span>
+                      </label>
+                    </li>
+                    <li>
+                      <label for="item2">LNbits</label>
+                    </li>
+                  </ul>
+                </details>
+                
+              </div>
+              <div class="backend-details" :class="{ open: kind == 'LND' || kind == 'LNBits' }">
+              <div v-if="kind == 'LND'">
+                <div class="field">
+                  <label for="host">
+                    LND REST Host (protocol + IP/domain + port)
+                  </label>
+                  <input
+                    class="input full-width"
+                    name="backend_data.LND.host"
+                    id="host"
+                    placeholder="https://my-lnd-tor-node.onion:8080"
+                  />
+                </div>
+                <div class="field">
+                  <label for="macaroon"> Invoice Macaroon (base64 encoded) </label>
+                  <input
+                    class="input full-width"
+                    name="backend_data.LND.macaroon"
+                    id="macaroon"
+                    placeholder="V2UgYWxsIGxvdmUgQGZpYXRqYWYhCg=="
+                  />
+                </div>
+              </div>
+              <div v-if="kind == 'LNBits'">
+                <div class="field">
+                  <label for="host">Host (protocol + IP/domain + port) </label>
+                  <input
+                    class="input full-width"
+                    name="backend_data.LNBits.host"
+                    id="host"
+                    placeholder="https://10.147.17.32:9737"
+                  />
+                </div>
+                <div class="field">
+                  <label for="key">API Key</label>
+                  <input class="input full-width" name="backend_data.LNBits.key" id="key" placeholder="my-secret-api-3423-k3y" />
+                </div>
+              </div>
+              </div>
+
+              <div class="field" id="new-ln-addr">
+                <label style="float: right">
+                  this is a new ln address
+                  <div class="toggle-rect-color">
+                    <input type="checkbox" v-model="isNew" id="rect3" name="check" @click="animate">
+                    <label for="rect3"></label>
+                  </div>
+                </label>
+              </div>
+
+              <br />
+              <div class="field pin-field">
+                <label for="pin"> Secret PIN </label>
+                <span :class="{isDisabled: isNew }"><input class="input full-width" v-model="secretPin" name="pin" id="pin" placeholder="your-secret-to-edit-alias-data" :disabled="isNew"/></span>
+              </div>
+              <button class="submit" :class="{isUpdate: !isNew, animate: isAnimate }" :disabled="isHandlingRequest">
+                <span :class="{visible: isNew, hidden: !isNew }">Get alias</span>
+                <span :class="{visible: !isNew, hidden: isNew }">Update alias</span>
+              </button>
+            </form>
+
+
+
+          </div>
+        
+        </div>
+        <div class="col-xl-4 col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-in" data-aos-delay="150">
+          <img src="static/img/hero-img.png" class="img-fluid animated" alt="">
+        </div>
+      </div>
+    </div>
+
+  <notifications position="bottom" width="100%" />
+  </section><!-- End Hero -->
+
+  <main id="main">
+
+    <!-- ======= About Section ======= -->
+    <section id="about" class="about">
+      <div class="container">
+
+        <div class="row">
+          <div class="col-lg-6 order-1 order-lg-2" data-aos="zoom-in" data-aos-delay="150">
+            <img src="static/img/email_smartphone.svg" class="img-fluid" alt="">
+          </div>
+          <div class="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content" data-aos="fade-right">
+            <h3>Simple payments now possible with Lightning Netowork</h3>
+            <p class="fst-italic">
+              Sending bitcoin is now as simple as sending an email, try it out :)
+            </p>
+            <ul>
+              <li><i class="bi bi-check-circle"></i> no need for requesting invoices, just publish your lightinng address</li>
+              <li><i class="bi bi-check-circle"></i> standarized protocol compatible with multiple wallet vendors</li>
+              <li><i class="bi bi-check-circle"></i> abiity to customize payment dialogs (in progress)</li>
+            </ul>
+            <a href="#" class="read-more">Read More @ lightningaddress.com <i class="bi bi-long-arrow-right"></i></a>
+          </div>
+        </div>
+
+      </div>
+    </section><!-- End About Section -->
+
+    <!-- ======= Counts Section ======= -->
+    {#
+    <section id="counts" class="counts">
+      <div class="container">
+
+        <div class="row counters">
+
+          <div class="col-lg-3 col-6 text-center">
+            <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="1" class="purecounter"></span>
+            <p>Lines Of Code</p>
+          </div>
+
+          <div class="col-lg-3 col-6 text-center">
+            <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="1" class="purecounter"></span>
+            <p>Commits</p>
+          </div>
+
+          <div class="col-lg-3 col-6 text-center">
+            <span data-purecounter-start="0" data-purecounter-end="1463" data-purecounter-duration="1" class="purecounter"></span>
+            <p>Aliases</p>
+          </div>
+
+          <div class="col-lg-3 col-6 text-center">
+            <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1" class="purecounter"></span>
+            <p>Contributors</p>
+          </div>
+
+        </div>
+
+      </div>
+    </section><!-- End Counts Section -->
+    #}
+
+    <!-- ======= Frequently Asked Questions Section ======= -->
+    <section id="faq" class="faq">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2>Frequently Asked Questions</h2>
+          <p>See below to find answers to most common questions around the usage of the aliasing service.</p>
+        </div>
+
+        <div class="faq-list">
+          <ul>
+            <li data-aos="fade-up" data-aos="fade-up" data-aos-delay="100">
+              <i class="bx bx-help-circle icon-help"></i> <a data-bs-toggle="collapse" class="collapse" data-bs-target="#faq-list-1">What is that whole backend type? How do I create an alias for my wallet? <i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
+              <div id="faq-list-1" class="collapse show" data-bs-parent=".faq-list">
+                <p>
+                  Node backend type represents the backend your wallet provider / application is based on. You can usually find server and key information in the wallet / application settings. If you don't see your backend available you can create a GitHub Issue for the project or contribute and prepare a pull request yourself :-)  
+                </p>
+              </div>
+            </li>
+
+            <li data-aos="fade-up" data-aos-delay="200">
+              <i class="bx bx-help-circle icon-help"></i> <a data-bs-toggle="collapse" data-bs-target="#faq-list-2" class="collapsed">What happens if my alias is already taken? <i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
+              <div id="faq-list-2" class="collapse" data-bs-parent=".faq-list">
+                <p>
+                  There's not much we can do. You can try to contact the current owner (for example by sending them a few satoshis with a comment/message) and see if they'd be open for handing it over to you. The situation here is very similar to domain names (DNS) and aliases are reserved in first-come, first-served basis. Once a certain alias is claimed, only the owner can make changes to it.
+                </p>
+              </div>
+            </li>
+
+            <li data-aos="fade-up" data-aos-delay="300">
+              <i class="bx bx-help-circle icon-help"></i> <a data-bs-toggle="collapse" data-bs-target="#faq-list-3" class="collapsed">I don't remember the PIN and I need to update the alias, what do I do? <i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
+              <div id="faq-list-3" class="collapse" data-bs-parent=".faq-list">
+                <p>
+                  That's a bummer! First check if you can still see it in your wallet (we set up an invoice with PIN in the comment when you claim an alias). If you stil can't find it, just send us a message to the tipping ln address in the footer and we're try to get you sorted.
+                </p>
+              </div>
+            </li>
+
+            <li data-aos="fade-up" data-aos-delay="400">
+              <i class="bx bx-help-circle icon-help"></i> <a data-bs-toggle="collapse" data-bs-target="#faq-list-4" class="collapsed">Would you rather fight 100 duck-sized horses, or 1 horse-sized duck? <i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
+              <div id="faq-list-4" class="collapse" data-bs-parent=".faq-list">
+                <p>
+                  You're in the wrong part of the internet my friend. I'm impressed that you went that deep into the website though! Congrats :-)
+                </p>
+              </div>
+            </li>
+
+            <li data-aos="fade-up" data-aos-delay="500">
+              <i class="bx bx-help-circle icon-help"></i> <a data-bs-toggle="collapse" data-bs-target="#faq-list-5" class="collapsed">How do I contact you? <i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
+              <div id="faq-list-5" class="collapse" data-bs-parent=".faq-list">
+                <p>
+                  For general things just use GitHub issues. An alternative, more direct way is sending a message via the tipping alias visible in the page footer.
+                </p>
+              </div>
+            </li>
+
+            <li data-aos="fade-up" data-aos-delay="500">
+              <i class="bx bx-help-circle icon-help"></i> <a data-bs-toggle="collapse" data-bs-target="#faq-list-6" class="collapsed">What guarantees are there around the service?<i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
+              <div id="faq-list-6" class="collapse" data-bs-parent=".faq-list">
+                <p>
+                  None! As this is a free service, there are no SLA's involved and it should be considered a <b>beta</b>. Don't worry too much though - in worst case scenario the alias might stop working but this won't put your funds or your wallet in danger 
+                </p>
+                <p>
+                  If you're looking for a packaged product with guaratness please contact me!  
+                </p>
+              </div>
+            </li>
+
+          </ul>
+        </div>
+
+      </div>
+    </section><!-- End Frequently Asked Questions Section -->
+
+    <!-- ======= Contact Section ======= -->
+    <section id="contact" class="contact section-bg">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2>Contact</h2>
+          <p>Please use GitHub issues system for feature requests and bug reporting. We're happy to accept pull requests to the project too!</p>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="info-box mb-4">
+              <i class="bx bx-map"></i>
+              <h3>Our Address</h3>
+              <p>Interwebs, or try your luck <a href="https://www.google.com/mars/#lat=-40.608449&lon=50.376695&zoom=6&q=spacecraft">here</a></p>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="info-box  mb-4">
+              <i class="bx bx-envelope"></i>
+              <h3>Email Us</h3>
+              <p>Please use <a href="https://github.com/bernii">GH Issues</a></p>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="info-box  mb-4">
+              <i class="bx bx-phone-call"></i>
+              <h3>Call Us</h3>
+              <p>+1 555-3485</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section><!-- End Contact Section -->
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+    
+    <div class="footer-top">
+      <div class="container">
+        <div class="row">
+
+          <div class="col-lg-3 col-md-6 footer-contact">
+            <h3>{{ site_name }}{{ site_sub_name }}</h3>
+            <p>
+              Interwebs <br>
+              another <a href="https://www.google.com/mars/#lat=-40.608449&lon=50.376695&zoom=6&q=spacecraft">location</a> <br><br>
+              <strong>Phone:</strong> +1 555-3485<br>
+              <strong>Email:</strong> not available<br>
+            </p>
+          </div>
+
+          <div class="col-lg-2 col-md-6 footer-links">
+            <h4>Resources</h4>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">docs.rs</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://github.com/bernii">github repo</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">crates.io</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://github.com/bernii">report a bug</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://github.com/bernii">feature request</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-3 col-md-6 footer-links">
+            <h4>About Lightning Network</h4>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://lightningaddress.com/">Lightinng Address</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://github.com/andrerfneves/lightning-address">LN Address Protocol</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://lightningdecoder.com/">LN Address Decodert</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://datatracker.ietf.org/doc/html/rfc5322#section-3.4.1">Internet Identifier</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="https://github.com/fiatjaf/lnurl-rfc">LN URL</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-4 col-md-6 footer-newsletter">
+            <h4>Send a tip!</h4>
+            <p>Want to test and support the project? Send some 🍜 money my way ♥</p>
+            <p>⚡ ramen@lnaddress.me / 🍜@lnaddress.me ⚡</p>
+            <p class="emoji-info">(some wallet vendors have trouble handling emoji in the address, let them know!)</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <div class="container">
+
+      <div class="copyright-wrap d-md-flex py-4">
+        <div class="me-md-auto text-center text-md-start">
+          <div class="copyright">
+            &copy; Copyright <strong><span>{{ site_name }}{{ site_sub_name }}</span></strong>. All Rights Reserved
+          </div>
+          <div class="credits">
+            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+          </div>
+        </div>
+        <div class="social-links text-center text-md-right pt-3 pt-md-0">
+          <a href="https://twitter.com/bkobos" class="twitter"><i class="bx bxl-twitter"></i></a>
+          <a href="https://www.linkedin.com/in/bernii/" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+        </div>
+      </div>
+
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="static/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="static/vendor/aos/aos.js"></script>
+  <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="static/vendor/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="static/js/main.js"></script>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.prod.js",
+        "vue3-notification": "https://cdn.jsdelivr.net/npm/@kyvg/vue3-notification@2.4.1/dist/index.esm.js"
+      }
+    }
+  </script>
+  <script type="module">
+    import { createApp } from "vue";
+    import Notifications from "vue3-notification";
+    // const initial = {} // REPLACED WITH SERVER DATA //
+    const initial = {
+      domains: [{% for domain in domains %}'{{ domain }}',{% endfor %}],
+      siteName: '{{site_name}}',
+      siteNameSub: 'rs',
+      usernameInfo: 'Desired alias'
+    }
+
+    const Main = {
+      data() {
+        return {
+          kind: 'lnd',
+          isNew: true,
+          isAnimate: false,
+          isHandlingRequest: false,
+          secretPin: "",
+          ...initial
+        }
+      },
+
+      // so it does not collide with jinja html template tags
+      compilerOptions: {
+        delimiters: ["${", "}$"]
+      },
+
+      methods: {
+        animate() {
+          this.isAnimate = true;
+          setTimeout(() => {
+            this.isAnimate = false
+          }, 600)
+        },
+        onSubmit(e) {
+          var el = e.target;
+          var formData = new FormData(el);
+          var formobj = Object.fromEntries(formData);
+          this.isHandlingRequest = true;
+
+          for (const [key, value] of Object.entries(formobj)) {
+            if (key.indexOf(".") != -1) {
+              var arr = key.split(".");
+
+              var obj = formobj;
+              for(var i = 0; i < arr.length-1; i++) {
+                if (obj[arr[i]] === undefined) {
+                  obj[arr[i]] = {};
+                }
+                obj = obj[arr[i]];
+              }
+              obj[arr[arr.length-1]] = value;
+              delete formobj[key]; 
+            }
+          }
+
+          fetch(el.action, {
+            method: el.method,
+            headers: { "Content-Type": "application/json; charset=UTF-8" },
+            body: JSON.stringify(formobj),
+          })
+          .then((response) => {
+            this.isHandlingRequest = false;
+            if (response.ok) {
+              return response.json();
+            }
+            return Promise.reject(response); // 2. reject instead of throw
+          })
+          .then((json) => {
+            console.log("Got json resp")
+            if (json.message == "success") {
+              // unlock the secret field and fill it in
+              this.isNew = false;
+              this.secretPin = json.pin;
+              this.$notify({
+                text: "Congrats, your alias has been reserved. Check your LN wallet to see the secret PIN in case you want to modify the entry in the future.\nHave fun!",
+                type: "success",
+              });
+            } else {
+              this.$notify({
+                text: json,
+                type: "success",
+              });
+            }
+          })
+          .catch((response) => { 
+            response.json().then((json) => {
+              var text;
+              if (json.message == "field errors") {
+                text = "Problem with provided fields: "
+                for (const error of json.errors) {
+                  if (error['field'] == "backend") {
+                    text += "backend not selected";
+                  } else {
+                    text += error['field'] + ", ";
+                  }
+                }
+              } else if (
+                json.message.includes("Connection timeout error") ||
+                json.message.includes("Call to lnd failed (302)") ||
+                json.message.includes("error trying to connect: record overflow")
+              ) {
+                text = "Unable to connect to provided host. Are you sure hostname/port and protocol are correct?";
+              } else if (json.message.includes("value error:")) {
+                text = json.message.split("value error:")[1];
+              } else {
+                text = "Unknown error, please create GH Issue with your bug data";
+              }
+              // strip html tags just in case
+              text = text.replace(/<\/?[^>]+>/gi, '');
+              console.error("Error -> ", json.message)
+              this.$notify({
+                text: text,
+                type: "error",
+              });
+            })
+          });
+
+        }
+      },
+
+      mounted() {
+        this.kind = 'Backend type...'
+      }
+    }
+
+    // let Header = Object.assign({}, Main);
+    // createApp(Header).mount('#logo')
+    let app = createApp(Main).use(Notifications)
+    app.mount('#hero')
+  </script>
+
+</body>
+
+</html>
