@@ -5,7 +5,7 @@ use anyhow::{bail, Result};
 
 use self::models::Params;
 
-pub static DEFAULT_NAME: &str = "satadress.db";
+pub static DEFAULT_NAME: &str = "sataddress.db";
 pub struct Db(sled::Db);
 
 impl Clone for Db {

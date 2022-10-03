@@ -1,7 +1,7 @@
 use std::env;
 
 use envconfig::Envconfig;
-use satadress::{api, db, handlers, with_clone, Config};
+use sataddress::{api, db, handlers, with_clone, Config};
 use warp::Filter;
 
 use log::*;

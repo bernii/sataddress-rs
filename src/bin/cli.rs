@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
-use satadress::db::Db;
+use sataddress::db::Db;
 
-use satadress::db::models::Params;
+use sataddress::db::models::Params;
 
 use ansi_term::{self, Colour};
 use clap::{Parser, Subcommand};
