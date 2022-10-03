@@ -1,14 +1,21 @@
+set dotenv-load
+
 default:
     @just --list
 
-dev:
-    RUST_BACKTRACE=1 DOMAINS=extensa.pl,sats.rs PIN_SECRET=my-secret-phrase SITE_NAME=SATADDRESS SITE_SUB_NAME=.rs cargo run
+run:
+    @echo "Starting federation server for $DOMAINS, site name is $SITE_NAME$SITE_SUB_NAME"
+    cargo run
 
-build:
-    @echo "Building the binary..."
+fix:
+    @echo "Will try to fix source files..."
     cargo +nightly fmt -v
     cargo clippy --fix
-    @echo "binaries ready"
+
+check:
+    @echo "Checking if we're good to ship..."
+    cargo clippy --locked -- -D warnings
+    @echo "Checking done"
 
 test:
     @echo "TODO: testing not implemented yet!"
