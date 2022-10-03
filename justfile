@@ -14,7 +14,8 @@ fix:
 
 check:
     @echo "Checking if we're good to ship..."
-    cargo clippy --locked -- -D warnings
+    cargo clippy -- -D warnings
+    # cargo clippy --locked -- -D warnings
     @echo "Checking done"
 
 test:
