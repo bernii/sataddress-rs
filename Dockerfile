@@ -45,11 +45,12 @@ COPY ./assets ./assets
 COPY ./templates ./templates
 COPY ./justfile ./justfile
 
+# so that we can mount the config and db easily
+RUN touch .env
+RUN mkdir -p sataddress.db
+
 RUN chown -R $APP_USER:$APP_USER ${APP}
 USER $APP_USER
-
-# so that we can mount the config file easily
-RUN touch .env
 
 EXPOSE 3030
 CMD ["just", "run"]
