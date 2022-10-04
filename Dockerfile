@@ -34,7 +34,7 @@ RUN addgroup -S $APP_USER \
     && adduser -S -g $APP_USER $APP_USER
 
 RUN apk update \
-    && apk add --no-cache ca-certificates tzdata libgcc \
+    && apk add --no-cache ca-certificates tzdata libgcc just \
     && rm -rf /var/cache/apk/*
 
 WORKDIR ${APP}
@@ -43,9 +43,13 @@ COPY --from=builder /opt/sataddress/target/release/cli .
 
 COPY ./assets ./assets
 COPY ./templates ./templates
+COPY ./justfile ./justfile
 
 RUN chown -R $APP_USER:$APP_USER ${APP}
 USER $APP_USER
 
+# so that we can mount the config file easily
+RUN touch .env
+
 EXPOSE 3030
-CMD ["./server"]
+CMD ["just", "run"]

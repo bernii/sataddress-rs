@@ -1,11 +1,21 @@
 set dotenv-load
+app_user := env_var_or_default("APP_USER", "")
 
 default:
     @just --list
 
 run:
     @echo "Starting federation server for $DOMAINS, site name is $SITE_NAME$SITE_SUB_NAME"
-    cargo run
+    {{ if app_user == "appuser" { "./server "} else { "cargo run"} }}
+
+docker-run:
+    @echo "Starting using latest docker image"
+    # docker run -v $(pwd)/.env:/opt/sataddress/.env -v $(pwd)/sataddress.db:/opt/sataddress/sataddress.db --name sataddress -it --rm bernii/sataddress:latest
+    docker run -v $(pwd)/.env:/opt/sataddress/.env -v $(pwd)/sataddress.db:/opt/sataddress/sataddress.db --name sataddress -it --rm sataddress:latest
+
+docker-build:
+    @echo "Building a docker release..."
+    docker build -t sataddress:latest .
 
 fix:
     @echo "Will try to fix source files..."
@@ -17,10 +27,6 @@ check:
     cargo clippy -- -D warnings
     # cargo clippy --locked -- -D warnings
     @echo "Checking done"
-
-build:
-    @echo "Building a docker release..."
-    docker build -t sataddress:latest .
 
 test:
     @echo "TODO: testing not implemented yet!"
