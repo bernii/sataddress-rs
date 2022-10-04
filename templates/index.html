@@ -108,15 +108,15 @@
                 </details>
                 
               </div>
-              <div class="backend-details" :class="{ open: kind == 'LND' || kind == 'LNBits' }">
-              <div v-if="kind == 'LND'">
+              <div class="backend-details" :class="{ open: kind == 'Lnd' || kind == 'LNBits' }">
+              <div v-if="kind == 'Lnd'">
                 <div class="field">
                   <label for="host">
                     LND REST Host (protocol + IP/domain + port)
                   </label>
                   <input
                     class="input full-width"
-                    name="backend_data.LND.host"
+                    name="backend_data.Lnd.host"
                     id="host"
                     placeholder="https://my-lnd-tor-node.onion:8080"
                   />
@@ -125,7 +125,7 @@
                   <label for="macaroon"> Invoice Macaroon (base64 encoded) </label>
                   <input
                     class="input full-width"
-                    name="backend_data.LND.macaroon"
+                    name="backend_data.Lnd.macaroon"
                     id="macaroon"
                     placeholder="V2UgYWxsIGxvdmUgQGZpYXRqYWYhCg=="
                   />

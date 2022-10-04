@@ -162,9 +162,9 @@ fn validate_domain(domain: &str, config: &Config) -> Result<(), ValidationError>
 
 use strum::IntoEnumIterator;
 fn validate_backend(backend: &str, _config: &Config) -> Result<(), ValidationError> {
-    if InvoiceAPI::iter()
+    if !InvoiceAPI::iter()
         .map(|i| i.to_string())
-        .any(|x| x != *backend)
+        .any(|x| x == *backend)
     {
         return Err(ValidationError::new("backend not supported"));
     }
@@ -203,7 +203,7 @@ pub async fn grab(db: Db, config: Config, buf: impl Buf) -> Result<impl Reply, R
 
     // check if backend-specific data is correct
     match body.backend.as_str() {
-        "LND" => {
+        "Lnd" => {
             if let Some(InvoiceAPI::Lnd(ref params)) = body.backend_data {
                 params
                     .validate()
