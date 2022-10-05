@@ -400,7 +400,11 @@
           <div class="col-lg-4 col-md-6 footer-newsletter">
             <h4>Send a tip!</h4>
             <p>Want to test and support the project? Send some 🍜 money my way ♥</p>
-            <p>⚡ ramen@lnaddress.me / 🍜@lnaddress.me ⚡</p>
+            {% for domain in domains %}
+            {% if loop.first %}
+            <p>⚡ ramen@{{ domain }} / 🍜@{{ domain }} ⚡</p>
+            {% endif %}
+            {% endfor %}
             <p class="emoji-info">(some wallet vendors have trouble handling emoji in the address, let them know!)</p>
           </div>
 
@@ -456,7 +460,7 @@
     const initial = {
       domains: [{% for domain in domains %}'{{ domain }}',{% endfor %}],
       siteName: '{{site_name}}',
-      siteNameSub: 'rs',
+      siteNameSub: '{{site_sub_name}}',
       usernameInfo: 'Desired alias'
     }
 
