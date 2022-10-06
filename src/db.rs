@@ -75,7 +75,7 @@ pub mod defaults {
 }
 
 pub mod models {
-    use std::time::SystemTime;
+    use std::{time::SystemTime, cmp::Ordering};
 
     use serde::{Deserialize, Serialize};
     use strum_macros::{self, Display, EnumIter};
@@ -163,6 +163,28 @@ pub mod models {
         pub calls: Counter,
         pub edits: Counter,
     }
+
+    impl Ord for Stats {
+        fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+            let this = self.invoices.num + self.calls.num + self.edits.num;
+            let other = other.invoices.num + other.calls.num + other.edits.num;
+            this.cmp(&other)
+        }
+    }
+
+    impl PartialOrd for Stats {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            Some(self.cmp(other))
+        }
+    }
+
+    impl PartialEq for Stats {
+        fn eq(&self, other: &Self) -> bool {
+            self.cmp(other) == Ordering::Equal
+        }
+    }
+
+    impl Eq for Stats { }
 
     #[derive(Debug, Deserialize, Serialize, Default, Clone)]
     #[serde(rename_all = "camelCase")]

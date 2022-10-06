@@ -1,8 +1,10 @@
 use std::path::PathBuf;
 
-use sataddress::db::Db;
+use cli_table::format::Justify;
+use cli_table::{Cell, Table, Style};
+use sataddress::{db::Db, api::generate_stats};
 
-use sataddress::db::models::Params;
+use sataddress::db::models::{Params, Stats};
 
 use ansi_term::{self, Colour};
 use clap::{Parser, Subcommand};
@@ -57,7 +59,7 @@ async fn main() {
             }
         },
         Commands::Stats {} => {
-            todo!();
+            app_stats();
         }
     }
 }
@@ -94,6 +96,50 @@ fn db_dump(path: PathBuf) {
         data.push(p);
     }
     std::fs::write(path, serde_json::to_string_pretty(&data).unwrap()).unwrap();
+}
+
+fn app_stats() {
+    let db = Db::init().unwrap();
+    let (data, summary) = generate_stats(db).unwrap();
+    let mut data: Vec<(&String, &Stats)> = data.iter().collect();
+    data.sort_by(|a, b| b.1.cmp(a.1));
+
+    let table = vec![
+        vec!["Invioices generates".cell(), summary["invoices"].as_i64().unwrap().cell().justify(Justify::Right)],
+        vec!["API calls".cell(), summary["calls"].as_i64().unwrap().cell().justify(Justify::Right)],
+        vec!["API edits".cell(), summary["edits"].as_i64().unwrap().cell().justify(Justify::Right)],
+    ]
+    .table()
+    .title(vec![
+        "Name".cell().bold(true),
+        "Total number".cell().bold(true),
+    ])
+    .bold(true);
+
+    println!("Summary of app operations");
+    println!("{}", table.display().unwrap());
+    println!("\nPer user operations, ordered desc, top 10. Total users: {}", Colour::Yellow.paint(data.len().to_string()));
+
+    let max_elems = 10.min(data.len());
+    let mut table = vec![];
+    for (username, stats) in data[..max_elems].iter() {
+        table.push(vec![
+            username.cell(),
+            stats.invoices.num.cell().justify(Justify::Right),
+            stats.calls.num.cell().justify(Justify::Right),
+            stats.edits.num.cell().justify(Justify::Right),
+        ]);
+    }
+
+    let table = table.table()
+    .title(vec![
+        "User name".cell().bold(true),
+        "Invoices generated".cell().bold(true),
+        "API calls".cell().bold(true),
+        "API edits".cell().bold(true),
+    ])
+    .bold(true);
+    println!("{}", table.display().unwrap());
 }
 
 fn banner(quote: &str) {

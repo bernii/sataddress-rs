@@ -1,6 +1,6 @@
 /// general data manipulation api
 use crate::{
-    db::{models::Params, Db},
+    db::{models::{Params, Stats}, Db},
     with_clone,
 };
 use log::*;
@@ -100,14 +100,22 @@ pub async fn get_user(_db: Db, _config: Config) -> Result<impl warp::Reply, Infa
 }
 
 pub async fn get_stats(db: Db) -> Result<impl warp::Reply, Infallible> {
+    let (data, summary) = generate_stats(db).unwrap();
+    Ok(warp::reply::json(&json!({
+        "data": data,
+        "summary": summary
+    })))
+}
+
+pub fn generate_stats(db: Db) -> Result<(HashMap<String, Stats>, Value), anyhow::Error> {
     let mut data = HashMap::new();
     let mut summary: Value = json!(
         {"calls": 0, "edits": 0, "invoices": 0}
     );
 
     for r in db.iter() {
-        let ivec = r.unwrap();
-        let p: Params = rmp_serde::from_slice(&ivec.1).unwrap();
+        let ivec = r?;
+        let p: Params = rmp_serde::from_slice(&ivec.1)?;
 
         let calls = summary["calls"].as_u64().unwrap() as u16 + p.stats.calls.num;
         summary["calls"] = serde_json::Value::Number(calls.into());
@@ -120,8 +128,5 @@ pub async fn get_stats(db: Db) -> Result<impl warp::Reply, Infallible> {
 
         data.insert(format!("{}@{}", p.name, p.domain), p.stats);
     }
-    Ok(warp::reply::json(&json!({
-        "data": data,
-        "summary": summary
-    })))
+    Ok((data, summary))
 }
