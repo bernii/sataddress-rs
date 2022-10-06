@@ -183,7 +183,6 @@ fn banner(quote: &str) {
     println!("{}", text);
 }
 
-
 static DEFAULT_TMP_DB: &str = "db.tmp";
 struct DbCopy(Db);
 
