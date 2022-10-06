@@ -192,9 +192,7 @@ impl DbCopy {
         options.copy_inside = true;
         dir::copy(sataddress::db::DEFAULT_NAME, DEFAULT_TMP_DB, &options).unwrap();
 
-        Self {
-            0: Db::from_path(DEFAULT_TMP_DB).unwrap(),
-        }
+        Self(Db::from_path(DEFAULT_TMP_DB).unwrap())
     }
 }
 
