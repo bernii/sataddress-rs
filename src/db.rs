@@ -15,8 +15,12 @@ impl Clone for Db {
 }
 
 impl Db {
+    pub fn from_path(path: &str) -> Result<Self> {
+        Ok(Self(sled::open(path)?))
+    }
+
     pub fn init() -> Result<Self> {
-        let db = Self(sled::open(DEFAULT_NAME)?);
+        let db = Db::from_path(DEFAULT_NAME)?;
 
         // print db data in case we're in the debug mode
         if env::var_os("RUST_LOG").unwrap_or_else(|| "".into()) == "debug" {
@@ -75,7 +79,7 @@ pub mod defaults {
 }
 
 pub mod models {
-    use std::{time::SystemTime, cmp::Ordering};
+    use std::{cmp::Ordering, time::SystemTime};
 
     use serde::{Deserialize, Serialize};
     use strum_macros::{self, Display, EnumIter};
@@ -184,7 +188,7 @@ pub mod models {
         }
     }
 
-    impl Eq for Stats { }
+    impl Eq for Stats {}
 
     #[derive(Debug, Deserialize, Serialize, Default, Clone)]
     #[serde(rename_all = "camelCase")]

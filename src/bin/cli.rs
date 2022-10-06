@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
-use cli_table::format::Justify;
-use cli_table::{Cell, Table, Style};
-use sataddress::{db::Db, api::generate_stats};
+use cli_table::{format::Justify, Cell, Style, Table};
+use fs_extra::dir::{self, CopyOptions};
+use sataddress::{api::generate_stats, db::Db};
 
 use sataddress::db::models::{Params, Stats};
 
@@ -99,15 +99,46 @@ fn db_dump(path: PathBuf) {
 }
 
 fn app_stats() {
-    let db = Db::init().unwrap();
+    // yeah that's highly inefficient but once that
+    // becomes a problem we should move to an actual
+    // telemetry system anyways
+    const DEFAULT_TMP_DB: &str = "db.tmp";
+    let mut options = CopyOptions::new();
+    options.copy_inside = true;
+    dir::copy(sataddress::db::DEFAULT_NAME, DEFAULT_TMP_DB, &options).unwrap();
+
+    let db = Db::from_path(DEFAULT_TMP_DB).unwrap();
     let (data, summary) = generate_stats(db).unwrap();
+
+    dir::remove(DEFAULT_TMP_DB).unwrap();
     let mut data: Vec<(&String, &Stats)> = data.iter().collect();
     data.sort_by(|a, b| b.1.cmp(a.1));
 
     let table = vec![
-        vec!["Invioices generates".cell(), summary["invoices"].as_i64().unwrap().cell().justify(Justify::Right)],
-        vec!["API calls".cell(), summary["calls"].as_i64().unwrap().cell().justify(Justify::Right)],
-        vec!["API edits".cell(), summary["edits"].as_i64().unwrap().cell().justify(Justify::Right)],
+        vec![
+            "Invioices generates".cell(),
+            summary["invoices"]
+                .as_i64()
+                .unwrap()
+                .cell()
+                .justify(Justify::Right),
+        ],
+        vec![
+            "API calls".cell(),
+            summary["calls"]
+                .as_i64()
+                .unwrap()
+                .cell()
+                .justify(Justify::Right),
+        ],
+        vec![
+            "API edits".cell(),
+            summary["edits"]
+                .as_i64()
+                .unwrap()
+                .cell()
+                .justify(Justify::Right),
+        ],
     ]
     .table()
     .title(vec![
@@ -118,7 +149,10 @@ fn app_stats() {
 
     println!("Summary of app operations");
     println!("{}", table.display().unwrap());
-    println!("\nPer user operations, ordered desc, top 10. Total users: {}", Colour::Yellow.paint(data.len().to_string()));
+    println!(
+        "\nPer user operations, ordered desc, top 10. Total users: {}",
+        Colour::Yellow.paint(data.len().to_string())
+    );
 
     let max_elems = 10.min(data.len());
     let mut table = vec![];
@@ -131,14 +165,15 @@ fn app_stats() {
         ]);
     }
 
-    let table = table.table()
-    .title(vec![
-        "User name".cell().bold(true),
-        "Invoices generated".cell().bold(true),
-        "API calls".cell().bold(true),
-        "API edits".cell().bold(true),
-    ])
-    .bold(true);
+    let table = table
+        .table()
+        .title(vec![
+            "User name".cell().bold(true),
+            "Invoices generated".cell().bold(true),
+            "API calls".cell().bold(true),
+            "API edits".cell().bold(true),
+        ])
+        .bold(true);
     println!("{}", table.display().unwrap());
 }
 

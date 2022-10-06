@@ -1,6 +1,9 @@
 /// general data manipulation api
 use crate::{
-    db::{models::{Params, Stats}, Db},
+    db::{
+        models::{Params, Stats},
+        Db,
+    },
     with_clone,
 };
 use log::*;
