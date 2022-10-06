@@ -102,15 +102,8 @@ fn app_stats() {
     // yeah that's highly inefficient but once that
     // becomes a problem we should move to an actual
     // telemetry system anyways
-    const DEFAULT_TMP_DB: &str = "db.tmp";
-    let mut options = CopyOptions::new();
-    options.copy_inside = true;
-    dir::copy(sataddress::db::DEFAULT_NAME, DEFAULT_TMP_DB, &options).unwrap();
-
-    let db = Db::from_path(DEFAULT_TMP_DB).unwrap();
-    let (data, summary) = generate_stats(db).unwrap();
-
-    dir::remove(DEFAULT_TMP_DB).unwrap();
+    let db = DbCopy::init();
+    let (data, summary) = generate_stats(&db.0).unwrap();
     let mut data: Vec<(&String, &Stats)> = data.iter().collect();
     data.sort_by(|a, b| b.1.cmp(a.1));
 
@@ -188,4 +181,26 @@ fn banner(quote: &str) {
         ──▀▀█▄▄▄▄▄█▀▀──";
     let text = format!("{:-^34}\n{}\n", quote, Colour::Yellow.paint(BTC));
     println!("{}", text);
+}
+
+
+static DEFAULT_TMP_DB: &str = "db.tmp";
+struct DbCopy(Db);
+
+impl DbCopy {
+    fn init() -> Self {
+        let mut options = CopyOptions::new();
+        options.copy_inside = true;
+        dir::copy(sataddress::db::DEFAULT_NAME, DEFAULT_TMP_DB, &options).unwrap();
+
+        Self {
+            0: Db::from_path(DEFAULT_TMP_DB).unwrap(),
+        }
+    }
+}
+
+impl Drop for DbCopy {
+    fn drop(&mut self) {
+        dir::remove(DEFAULT_TMP_DB).unwrap();
+    }
 }

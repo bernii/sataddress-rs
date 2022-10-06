@@ -103,14 +103,14 @@ pub async fn get_user(_db: Db, _config: Config) -> Result<impl warp::Reply, Infa
 }
 
 pub async fn get_stats(db: Db) -> Result<impl warp::Reply, Infallible> {
-    let (data, summary) = generate_stats(db).unwrap();
+    let (data, summary) = generate_stats(&db).unwrap();
     Ok(warp::reply::json(&json!({
         "data": data,
         "summary": summary
     })))
 }
 
-pub fn generate_stats(db: Db) -> Result<(HashMap<String, Stats>, Value), anyhow::Error> {
+pub fn generate_stats(db: &Db) -> Result<(HashMap<String, Stats>, Value), anyhow::Error> {
     let mut data = HashMap::new();
     let mut summary: Value = json!(
         {"calls": 0, "edits": 0, "invoices": 0}
