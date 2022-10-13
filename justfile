@@ -20,7 +20,7 @@ docker-build:
 fix:
     @echo "Will try to fix source files..."
     cargo +nightly fmt -v
-    cargo clippy --fix
+    cargo clippy --fix --allow-dirty
 
 check:
     @echo "Checking if we're good to ship..."
