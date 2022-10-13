@@ -86,7 +86,7 @@ pub mod models {
 
     use validator::Validate;
 
-    #[derive(Serialize, Deserialize, Debug, Clone, EnumIter, Display, PartialEq)]
+    #[derive(Serialize, Deserialize, Debug, Clone, EnumIter, Display, PartialEq, Eq)]
     pub enum InvoiceAPI {
         Lnd(LNDParams),
         LNBits(LNBitsParams),
@@ -123,7 +123,7 @@ pub mod models {
         }
     }
 
-    #[derive(Serialize, Deserialize, Validate, Debug, Default, Clone, PartialEq)]
+    #[derive(Serialize, Deserialize, Validate, Debug, Default, Clone, PartialEq, Eq)]
     pub struct LNDParams {
         #[validate(url)]
         pub host: String,
@@ -131,7 +131,7 @@ pub mod models {
         pub macaroon: String,
     }
 
-    #[derive(Serialize, Deserialize, Validate, Debug, Default, Clone, PartialEq)]
+    #[derive(Serialize, Deserialize, Validate, Debug, Default, Clone, PartialEq, Eq)]
     pub struct LNBitsParams {
         #[validate(url)]
         pub host: String,
@@ -190,7 +190,7 @@ pub mod models {
 
     impl Eq for Stats {}
 
-    #[derive(Debug, Deserialize, Serialize, Default, Clone, PartialEq)]
+    #[derive(Debug, Deserialize, Serialize, Default, Clone, PartialEq, Eq)]
     #[serde(rename_all = "camelCase")]
     pub struct Params {
         pub name: String,
@@ -243,21 +243,21 @@ mod tests {
     #[test]
     fn inv_api_ln_bit_detects_tor_address() {
         let mut iapi = InvoiceAPI::LNBits(LNBitsParams::default());
-        assert_eq!(iapi.is_tor(), false);
+        assert!(!iapi.is_tor());
         if let InvoiceAPI::LNBits(ref mut p) = iapi {
             p.host = "dnasd38oq973278da.onion".to_string();
         }
-        assert_eq!(iapi.is_tor(), true);
+        assert!(iapi.is_tor());
     }
 
     #[test]
     fn inv_api_lnd_detects_tor_address() {
         let mut iapi = InvoiceAPI::Lnd(LNDParams::default());
-        assert_eq!(iapi.is_tor(), false);
+        assert!(!iapi.is_tor());
         if let InvoiceAPI::Lnd(ref mut p) = iapi {
             p.host = "dnasd38oq973278da.onion".to_string();
         }
-        assert_eq!(iapi.is_tor(), true);
+        assert!(iapi.is_tor());
     }
 
     #[test]

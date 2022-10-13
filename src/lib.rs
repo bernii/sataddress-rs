@@ -72,13 +72,17 @@ pub fn with_clone<C: Clone + Send>(
 mod tests {
     use std::str::FromStr;
 
-    use super::{with_clone, CsvVec};
+    use super::{CsvVec, with_clone};
+
 
     #[tokio::test]
     async fn with_clone_returns_wrapped_clone() {
         let hello = "hello";
         let f = with_clone(hello.clone());
-        let value = warp::test::request().filter(&f).await.unwrap();
+        let value = warp::test::request()
+            .filter(&f)
+            .await
+            .unwrap();
         assert_eq!(value, hello);
     }
 
@@ -91,9 +95,7 @@ mod tests {
 
     #[test]
     fn csv_vec_converts_to_vec() {
-        let cv = CsvVec {
-            0: vec!["elem".to_owned()],
-        };
+        let cv = CsvVec{0: vec!["elem".to_owned()]};
         let v: Vec<String> = cv.into();
         assert_eq!(v, vec!["elem"]);
     }
