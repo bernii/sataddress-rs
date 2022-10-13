@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+/// Defines a structure that we use to generate
+/// JSON response for LN URL
 #[derive(Deserialize, Serialize)]
 pub struct SuccessAction {
     pub tag: String,
@@ -14,6 +16,8 @@ pub struct SuccessAction {
     pub message: Option<String>,
 }
 
+/// Defines a structure that we use to generate
+/// JSON response for LNURL Payment
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LNURLPayValues {
@@ -26,6 +30,8 @@ pub struct LNURLPayValues {
     pub disposable: Option<bool>,
 }
 
+/// Defines a structure that we use to generate
+/// JSON response for LNURL Response
 #[derive(Deserialize, Serialize)]
 pub struct LNURLResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -36,6 +42,7 @@ pub struct LNURLResponse {
     pub reason: Option<String>,
 }
 
+/// Defines LNURL payment parameters
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LNURLPayParams {
@@ -49,8 +56,10 @@ pub struct LNURLPayParams {
     pub comment_allowed: u8,
 }
 
+/// BTC banner shown in wallets payment modals
 const BTC_LN_IMG: &[u8] = include_bytes!("../assets/inv_banner.png");
 
+/// Invoice generation and interaction logic
 pub mod invoice {
     use std::time::Duration;
 
@@ -74,15 +83,19 @@ pub mod invoice {
 
     use super::BTC_LN_IMG;
 
+    /// Used to generate descriptions and information
+    /// about the payments
     pub struct Metadata {
         name: String,
         domain: String,
     }
 
     impl Metadata {
+        // Recipient of the payment
         fn for_whom(&self) -> String {
             format!("{}@{}", self.name, self.domain)
         }
+        // Description of the payment - often used as memo
         fn get_text(&self) -> String {
             format!("Satoshis for {}.", &self.for_whom())
         }
@@ -114,6 +127,9 @@ pub mod invoice {
         }
     }
 
+    /// Connector that can handle both regular HTTPS
+    /// connection and SOCKS-proxied connection via
+    /// configured SOCKS proxy.
     #[derive(Clone)]
     enum MaybeProxiedConnector<T> {
         Https(HttpsConnector<T>),
@@ -151,6 +167,8 @@ pub mod invoice {
         }
     }
 
+    /// Connects to defined IncoiceAPI defined in Params in
+    /// order to create an invoice based on the input data.
     pub async fn make_invoice(
         params: &models::Params,
         msat: u64,
@@ -162,6 +180,7 @@ pub mod invoice {
         http.enforce_http(false);
 
         // accept self-signed certs
+        // useful when dealing with self-hosted wallets
         let tls = native_tls::TlsConnector::builder()
             .danger_accept_invalid_certs(true)
             .build()?;
@@ -296,5 +315,97 @@ pub mod invoice {
         );
 
         Ok(v["payment_request"].clone())
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use serde_json::{json, Value};
+        use warp::hyper::Uri;
+        use wiremock::{
+            http::HeaderName,
+            matchers::{method, path},
+            Mock, MockServer, ResponseTemplate,
+        };
+
+        use super::{make_invoice, Metadata};
+        use crate::db::models::{InvoiceAPI, Params};
+
+        #[test]
+        fn metadata_from_params() {
+            let name = "my-username".to_string();
+            let domain = "some-domain.com".to_string();
+            let params = Params {
+                name: name.clone(),
+                domain: domain.clone(),
+                ..Default::default()
+            };
+            let metadata: Metadata = params.into();
+            assert_eq!(metadata.name, name);
+            assert_eq!(metadata.domain, domain);
+        }
+
+        #[test]
+        fn metadata_forms() {
+            let name = "aname".to_string();
+            let domain = "a-domain.com".to_string();
+            let metadata = Metadata {
+                name: name.clone(),
+                domain: domain.clone(),
+            };
+            assert!(metadata.for_whom().contains(&name));
+            assert!(metadata.for_whom().contains(&domain));
+            assert!(metadata.get_text().contains("Satoshis for"));
+            let s_meta = metadata.to_string();
+
+            assert!(s_meta.contains("identifier"));
+            assert!(s_meta.contains("plain"));
+            assert!(s_meta.contains("png;base64"));
+        }
+
+        async fn prepare_server_mock() -> MockServer {
+            let mock_server = MockServer::start().await;
+            let resp = ResponseTemplate::new(200).set_body_json(json!({
+                "payment_request": "abc-payment",
+            }));
+            Mock::given(method("POST"))
+                .and(path("/v1/invoices"))
+                .respond_with(resp)
+                .mount(&mock_server)
+                .await;
+            mock_server
+        }
+
+        #[tokio::test]
+        async fn make_invoice_calls_api() {
+            let mock_server = prepare_server_mock().await;
+
+            let mut params = Params::default();
+            if let InvoiceAPI::Lnd(ref mut p) = params.invoice_api {
+                p.host = mock_server.uri();
+            }
+            // invoke the method
+            let result = make_invoice(
+                &params,
+                1000,
+                "http://127.0.0.0.1".parse::<Uri>().unwrap(),
+                Some("memo".to_string()),
+            )
+            .await
+            .unwrap();
+            // mock checks
+            mock_server.verify().await;
+            let rcv_req = mock_server.received_requests().await.unwrap();
+            assert_eq!(rcv_req.len(), 1);
+            let req = rcv_req.first().unwrap();
+            let rcv_body = req.body_json::<Value>().unwrap();
+            assert_eq!(rcv_body["value_msat"].as_i64().unwrap(), 1000);
+            assert!(rcv_body["memo"].is_string());
+            assert!(rcv_body["description_hash"].is_string());
+            assert!(req
+                .headers
+                .contains_key(&HeaderName::from("grpc-metadata-macaroon")));
+            // actual response check
+            assert_eq!(result, "abc-payment");
+        }
     }
 }

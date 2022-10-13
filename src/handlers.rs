@@ -20,6 +20,7 @@ use warp::{hyper::StatusCode, reject, Buf, Rejection, Reply};
 
 use super::Config;
 use std::{collections::HashMap, convert::Infallible, error::Error as StdError};
+use strum::IntoEnumIterator;
 
 use percent_encoding::percent_decode_str;
 
@@ -33,6 +34,7 @@ struct IndexTemaplte<'a> {
     site_sub_name: &'a str,
 }
 
+/// Renders the main (and only) web papge
 pub async fn index(config: Config) -> Result<impl warp::Reply, warp::Rejection> {
     let i_template = IndexTemaplte {
         domains: &config.domains.into(),
@@ -43,6 +45,15 @@ pub async fn index(config: Config) -> Result<impl warp::Reply, warp::Rejection> 
     Ok(warp::reply::html(body))
 }
 
+/// Handles LN URL requests. There are two types of requests:
+/// 1. request specifying `amount`
+/// If such request is recieved, we contact the wallet node
+/// via the API in order to create an invoice and return
+/// in to the caller.
+/// 2. requess not specifying `amount`
+/// If such request is recieved we generate a LNURLPayParams
+/// response which is then used in the customer wallet
+/// to render the payment form.
 pub async fn lnurl(
     db: Db,
     config: Config,
@@ -111,7 +122,7 @@ pub async fn lnurl(
             params.stats.calls.inc();
             db.update(&params).map_err(|_| warp::reject())?;
 
-            let resp = LNURLPayParams {
+            Ok(warp::reply::json(&LNURLPayParams {
                 lnurl_response: LNURLResponse {
                     status: Some("OK".to_string()),
                     reason: None,
@@ -122,13 +133,13 @@ pub async fn lnurl(
                 metadata: Metadata::from(params.clone()).to_string(),
                 comment_allowed: params.invoice_api.get_comment_len(),
                 tag: "payRequest".to_owned(),
-            };
-
-            Ok(warp::reply::json(&resp))
+            }))
         }
     }
 }
 
+/// Format of the POST request used to reserve/claim addresses
+/// in the system and to mofidy entries (PIN required)
 #[derive(Deserialize, Debug, Validate)]
 struct AliasPostData {
     #[validate(length(min = 1))]
@@ -153,6 +164,8 @@ impl From<AliasPostData> for Params {
     }
 }
 
+/// Validates that the domain is within domain list defined
+/// in the config.
 fn validate_domain(domain: &str, config: &Config) -> Result<(), ValidationError> {
     if !config.domains.contains(&domain.to_owned()) {
         return Err(ValidationError::new("domain not supported"));
@@ -160,7 +173,8 @@ fn validate_domain(domain: &str, config: &Config) -> Result<(), ValidationError>
     Ok(())
 }
 
-use strum::IntoEnumIterator;
+/// Validates that the passed backend data is within the
+/// supported list of backends (which InvoiceAPI enum represents)
 fn validate_backend(backend: &str, _config: &Config) -> Result<(), ValidationError> {
     if !InvoiceAPI::iter()
         .map(|i| i.to_string())
@@ -183,6 +197,7 @@ enum Error {
 
 impl reject::Reject for Error {}
 
+/// Main handler for requests from the web app.
 pub async fn grab(db: Db, config: Config, buf: impl Buf) -> Result<impl Reply, Rejection> {
     let des = &mut serde_json::Deserializer::from_reader(buf.reader());
     let mut body: AliasPostData = serde_path_to_error::deserialize(des)
@@ -373,6 +388,8 @@ fn validation_errs_to_str_vec(ve: &ValidationErrors) -> Vec<String> {
         .collect()
 }
 
+/// Computes the pin that is required in order to modify entries
+/// via the API calls.
 fn compute_pin(usnername: &str, domain: &str, secret: &str) -> String {
     let sha = Sha256::new()
         .chain_update(secret)
@@ -381,4 +398,17 @@ fn compute_pin(usnername: &str, domain: &str, secret: &str) -> String {
         .finalize();
 
     hex::encode(sha)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::compute_pin;
+
+    #[test]
+    fn computes_pin_for_user() {
+        assert_eq!(
+            compute_pin("user", "domain", "secret1"),
+            "a8fe9f81a343e918a2aa9a6ee251b2e672c90b8f9b98d253db202ab910dc3668"
+        );
+    }
 }

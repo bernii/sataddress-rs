@@ -86,7 +86,7 @@ pub mod models {
 
     use validator::Validate;
 
-    #[derive(Serialize, Deserialize, Debug, Clone, EnumIter, Display)]
+    #[derive(Serialize, Deserialize, Debug, Clone, EnumIter, Display, PartialEq)]
     pub enum InvoiceAPI {
         Lnd(LNDParams),
         LNBits(LNBitsParams),
@@ -123,7 +123,7 @@ pub mod models {
         }
     }
 
-    #[derive(Serialize, Deserialize, Validate, Debug, Default, Clone)]
+    #[derive(Serialize, Deserialize, Validate, Debug, Default, Clone, PartialEq)]
     pub struct LNDParams {
         #[validate(url)]
         pub host: String,
@@ -131,7 +131,7 @@ pub mod models {
         pub macaroon: String,
     }
 
-    #[derive(Serialize, Deserialize, Validate, Debug, Default, Clone)]
+    #[derive(Serialize, Deserialize, Validate, Debug, Default, Clone, PartialEq)]
     pub struct LNBitsParams {
         #[validate(url)]
         pub host: String,
@@ -190,7 +190,7 @@ pub mod models {
 
     impl Eq for Stats {}
 
-    #[derive(Debug, Deserialize, Serialize, Default, Clone)]
+    #[derive(Debug, Deserialize, Serialize, Default, Clone, PartialEq)]
     #[serde(rename_all = "camelCase")]
     pub struct Params {
         pub name: String,
@@ -206,11 +206,90 @@ pub mod models {
 }
 
 #[cfg(test)]
+pub mod helpers {
+    use std::env;
+
+    use rand::{distributions::Alphanumeric, thread_rng, Rng};
+
+    use super::Db;
+
+    pub fn tmp_db() -> Db {
+        let rnd_string: String = thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(30)
+            .map(char::from)
+            .collect();
+        let tmp_path = env::temp_dir().join(rnd_string);
+        Db::from_path(tmp_path.to_str().unwrap()).unwrap()
+    }
+}
+
+#[cfg(test)]
 mod tests {
+    use std::time::SystemTime;
+
+    use super::{helpers, models::LNDParams};
+
+    use super::models::{Counter, InvoiceAPI, LNBitsParams, Params};
 
     #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    fn counter_increments() {
+        let mut counter = Counter::default();
+        counter.inc();
+        assert_eq!(counter.num, 1);
+        assert_eq!(counter.last_update, SystemTime::now());
+    }
+
+    #[test]
+    fn inv_api_ln_bit_detects_tor_address() {
+        let mut iapi = InvoiceAPI::LNBits(LNBitsParams::default());
+        assert_eq!(iapi.is_tor(), false);
+        if let InvoiceAPI::LNBits(ref mut p) = iapi {
+            p.host = "dnasd38oq973278da.onion".to_string();
+        }
+        assert_eq!(iapi.is_tor(), true);
+    }
+
+    #[test]
+    fn inv_api_lnd_detects_tor_address() {
+        let mut iapi = InvoiceAPI::Lnd(LNDParams::default());
+        assert_eq!(iapi.is_tor(), false);
+        if let InvoiceAPI::Lnd(ref mut p) = iapi {
+            p.host = "dnasd38oq973278da.onion".to_string();
+        }
+        assert_eq!(iapi.is_tor(), true);
+    }
+
+    #[test]
+    fn invoice_api_lnbits_no_comments_support() {
+        let iapi = InvoiceAPI::LNBits(LNBitsParams::default());
+        assert_eq!(iapi.get_comment_len(), 0)
+    }
+
+    #[test]
+    fn invoice_api_lnd_comments_support() {
+        let iapi = InvoiceAPI::Lnd(LNDParams::default());
+        assert_ne!(iapi.get_comment_len(), 0)
+    }
+
+    #[test]
+    fn db_crud_works() {
+        let db = helpers::tmp_db();
+        let name = "my-username".to_string();
+        let domain = "just-a-domain.com".to_string();
+        let mut params = Params {
+            name: name.clone(),
+            domain: domain.clone(),
+            ..Default::default()
+        };
+
+        db.insert(&name, &domain, &params).unwrap();
+        let ret_params = db.get(&name, &domain).unwrap().unwrap();
+        assert_eq!(params, ret_params);
+
+        params.pin = "321".to_string();
+        db.update(&params).unwrap();
+        let ret_params = db.get(&name, &domain).unwrap().unwrap();
+        assert_eq!("321", ret_params.pin);
     }
 }

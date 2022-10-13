@@ -64,6 +64,7 @@ async fn main() {
     }
 }
 
+/// Imports data from a json dump into the `sled` database
 fn db_init(path: PathBuf) {
     let db = Db::init().unwrap();
     let text = std::fs::read_to_string(&path).unwrap();
@@ -87,6 +88,7 @@ fn db_init(path: PathBuf) {
     println!("[{}] Fixture loaded successfully", Colour::Green.paint("✓"));
 }
 
+/// Dumps `sled` database into a json file at provided `path`
 fn db_dump(path: PathBuf) {
     let db = Db::init().unwrap();
     let mut data = vec![];
@@ -98,6 +100,7 @@ fn db_dump(path: PathBuf) {
     std::fs::write(path, serde_json::to_string_pretty(&data).unwrap()).unwrap();
 }
 
+/// Prints basic usage statistics for the application
 fn app_stats() {
     // yeah that's highly inefficient but once that
     // becomes a problem we should move to an actual
@@ -170,6 +173,7 @@ fn app_stats() {
     println!("{}", table.display().unwrap());
 }
 
+/// Prints out the `cli` tool banner
 fn banner(quote: &str) {
     const BTC: &str = r"
         ──▄▄█▀▀▀▀▀█▄▄──
@@ -184,9 +188,14 @@ fn banner(quote: &str) {
 }
 
 static DEFAULT_TMP_DB: &str = "db.tmp";
+/// Creates a temporary copy (on disk) of the database to interact with
+/// as `sled` does not allow to have two readers at the same time and
+/// we want to be able to interact via `cli` while the server is running
 struct DbCopy(Db);
 
 impl DbCopy {
+    /// Returns a `Db` struct that is interacting with a copy
+    /// of the sled db.
     fn init() -> Self {
         let mut options = CopyOptions::new();
         options.copy_inside = true;
@@ -197,6 +206,7 @@ impl DbCopy {
 }
 
 impl Drop for DbCopy {
+    /// Removes the temporary copy of the db in the filesystem
     fn drop(&mut self) {
         dir::remove(DEFAULT_TMP_DB).unwrap();
     }

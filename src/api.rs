@@ -133,3 +133,71 @@ pub fn generate_stats(db: &Db) -> Result<(HashMap<String, Stats>, Value), anyhow
     }
     Ok((data, summary))
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use envconfig::Envconfig;
+    use warp::host::Authority;
+
+    use crate::{api::authenticate, db::helpers, Config};
+
+    use super::check_domain;
+
+    fn init_config() -> Config {
+        let hm = HashMap::from([
+            ("DOMAINS".to_owned(), "mydomain.com".to_owned()),
+            ("PIN_SECRET".to_owned(), "my-secret".to_owned()),
+            ("SITE_NAME".to_owned(), "my-site".to_owned()),
+            ("SITE_SUB_NAME".to_owned(), "my-com".to_owned()),
+        ]);
+        Config::init_from_hashmap(&hm).unwrap()
+    }
+
+    #[tokio::test]
+    async fn authenticate_header_secret() {
+        let config = init_config();
+        assert!(
+            authenticate("whatever".to_owned(), config.clone())
+                .await
+                .is_err(),
+            "should reject invalid value"
+        );
+        assert!(
+            authenticate("TODO-my-secret".to_owned(), config.clone())
+                .await
+                .is_ok(),
+            "should pass correct value"
+        );
+    }
+
+    #[tokio::test]
+    async fn check_domains_are_valid() {
+        let config = init_config();
+        let db = helpers::tmp_db();
+        let invalid_domain = Some(Authority::from_static("example.com"));
+        let valid_domain = Some(Authority::from_static("mydomain.com"));
+        assert!(check_domain(
+            db.clone(),
+            config.clone(),
+            "some-username".to_owned(),
+            invalid_domain
+        )
+        .await
+        .is_err());
+        assert!(
+            check_domain(db.clone(), config.clone(), "some-username".to_owned(), None)
+                .await
+                .is_err()
+        );
+        assert!(check_domain(
+            db.clone(),
+            config.clone(),
+            "some-username".to_owned(),
+            valid_domain
+        )
+        .await
+        .is_ok());
+    }
+}

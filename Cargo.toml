@@ -49,3 +49,7 @@ fs_extra = "1.2.0"
 
 # [package.metadata.cross.target.x86_64-unknown-linux-musl]
 # dockerfile = "./Dockerfile.x86_64"
+
+[dev-dependencies]
+rand = "0.8.5"
+wiremock = "0.5"
