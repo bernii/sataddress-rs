@@ -3,6 +3,11 @@ name = "sataddress"
 version = "0.1.0"
 edition = "2021"
 default-run="server"
+authors = [
+  "Bernard Kobos <bkobos+nospam@gmail.com>",
+]
+license = "MIT"
+description = "Rust implementation of Lightning Address Federated Server"
 
 [profile.dev]
 debug = 2
