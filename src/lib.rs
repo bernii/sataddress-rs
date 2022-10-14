@@ -1,11 +1,20 @@
+//! Federated Lightning Address Server
+//!
+//! The federated server allows you to easily handle LN Address
+//! requests and add those capabilties to the domains you own.
+
 use std::net::IpAddr;
 
 use envconfig::Envconfig;
 use warp::{hyper::Uri, Filter};
 
+/// REST API responsible for admin tasks
 pub mod api;
+/// Abstraction over an embedded database
 pub mod db;
+/// Main web and api application handlers
 pub mod handlers;
+/// Lightning network helpers and structures
 pub mod ln;
 
 /// Structure definining possible params and their structure
