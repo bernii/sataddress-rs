@@ -8,6 +8,7 @@ authors = [
 ]
 license = "MIT"
 description = "Rust implementation of Lightning Address Federated Server"
+include = ["/src", "/assets", "/templates", "justfile", "README.md"]
 
 [profile.dev]
 debug = 2
