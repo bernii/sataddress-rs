@@ -101,7 +101,7 @@ Project Link: [https://github.com/bernii/sataddress-rs](https://github.com/berni
 
 ## Acknowledgments
 
-* [sataddress](https://github.com/nbd-wtf/satdress) original federated lightning address server implementation which this implementation is based on
+* [satdress](https://github.com/nbd-wtf/satdress) original federated lightning address server implementation which this implementation is based on
 * [go-lnurl](https://github.com/fiatjaf/go-lnurl) which was helpful for learning about LN URL structures
 * [Lightning Address](https://github.com/andrerfneves/lightning-address) documentation and explanations
 * [BTC lightning logo](https://github.com/shocknet/bitcoin-lightning-logo) for creating an open source vector btc logo
