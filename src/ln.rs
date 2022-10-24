@@ -280,7 +280,7 @@ pub mod invoice {
 
         let req = req.body(Body::from(body.to_string()))?;
         let future = client.request(req);
-        let resp = match timeout(Duration::from_secs(30), future).await {
+        let resp = match timeout(Duration::from_secs(180), future).await {
             Ok(r) => r?,
             Err(_e) => bail!("Connection timeout error"),
         };
