@@ -301,6 +301,9 @@ pub mod invoice {
                     }
                 }
 
+                body["unhashed_description"] =
+                    serde_json::Value::String(hex::encode(metadata.to_string()));
+
                 req = Request::builder()
                     .method(Method::POST)
                     .uri(format!("{}api/v1/payments", ln_host))
