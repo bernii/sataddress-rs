@@ -14,6 +14,8 @@ pub mod api;
 pub mod db;
 /// Main web and api application handlers
 pub mod handlers;
+/// Keysend backend helpers (based on LNbits)
+pub mod keysend;
 /// Lightning network helpers and structures
 pub mod ln;
 
@@ -35,6 +37,19 @@ pub struct Config {
     pub site_sub_name: String,
     #[envconfig(default = "socks5://127.0.0.1:9050")]
     pub tor_proxy_url: Uri,
+
+    #[envconfig(nested = true)]
+    pub lnbits: LNbitsConfig,
+}
+
+#[derive(Envconfig, Debug, Clone)]
+pub struct LNbitsConfig {
+    #[envconfig(from = "LNBITS_URL")]
+    pub url: Uri,
+    #[envconfig(from = "LNBITS_API_KEY")]
+    pub api_key: String,
+    #[envconfig(from = "LNBITS_ADMIN_ID")]
+    pub admin_id: String,
 }
 
 /// Represents a comma delimited input for the CLI

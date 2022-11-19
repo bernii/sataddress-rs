@@ -112,7 +112,7 @@ fn app_stats() {
 
     let table = vec![
         vec![
-            "Invioices generates".cell(),
+            "Invioices generated".cell(),
             summary["invoices"]
                 .as_i64()
                 .unwrap()

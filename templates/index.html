@@ -93,6 +93,7 @@
                     <input type="radio" name="backend" id="default" title="Backend type..." value="Backend type..." checked v-model="kind">
                     <input type="radio" name="backend" id="item1" title="LND" value="Lnd" v-model="kind">
                     <input type="radio" name="backend" id="item2" title="LNBits" value="LNBits" v-model="kind">
+                    <input type="radio" name="backend" id="item3" title="Keysend" value="Keysend" v-model="kind">
                   </summary>
                   <ul class="list">
                     <li>
@@ -104,11 +105,14 @@
                     <li>
                       <label for="item2">LNbits</label>
                     </li>
+                    <li>
+                      <label for="item3">Keysend</label>
+                    </li>
                   </ul>
                 </details>
                 
               </div>
-              <div class="backend-details" :class="{ open: kind == 'Lnd' || kind == 'LNBits' }">
+              <div class="backend-details" :class="{ open: kind == 'Lnd' || kind == 'LNBits' || kind == 'Keysend' }">
               <div v-if="kind == 'Lnd'">
                 <div class="field">
                   <label for="host">
@@ -144,6 +148,15 @@
                 <div class="field">
                   <label for="key">API Key</label>
                   <input class="input full-width" name="backend_data.LNBits.key" id="key" placeholder="my-secret-api-3423-k3y" />
+                </div>
+              </div>
+              <div v-if="kind == 'Keysend'">
+                <div class="field keysend-info">
+                  *keysend alias uses a proxy as lightning address protocol does not support direct keysend payments yet
+                </div>
+                <div class="field">
+                  <label for="key">Public Key</label>
+                  <input class="input full-width" name="backend_data.Keysend.pub_key" id="pubkey" placeholder="my-public-key-1234329iedasda" />
                 </div>
               </div>
               </div>

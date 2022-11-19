@@ -550,6 +550,11 @@ h6 {
   align-items: center;
 }
 
+.field.keysend-info {
+  font-size: .8em;
+  color: #a7a7a7;
+}
+
 #submit-form ::placeholder {
   color: rgb(224, 224, 224);
 }

@@ -90,6 +90,7 @@ pub mod models {
     pub enum InvoiceAPI {
         Lnd(LNDParams),
         LNBits(LNBitsParams),
+        Keysend(KeysendParams),
     }
 
     impl Default for InvoiceAPI {
@@ -106,6 +107,7 @@ pub mod models {
             match self {
                 InvoiceAPI::Lnd(p) => p.host.contains(".onion"),
                 InvoiceAPI::LNBits(p) => p.host.contains(".onion"),
+                InvoiceAPI::Keysend(_) => false,
             }
         }
         pub fn get_comment_len(&self) -> u8 {
@@ -119,6 +121,7 @@ pub mod models {
             match self {
                 InvoiceAPI::Lnd(_) => 128,
                 InvoiceAPI::LNBits(_) => 0,
+                InvoiceAPI::Keysend(_) => 128,
             }
         }
     }
@@ -137,6 +140,16 @@ pub mod models {
         pub host: String,
         #[validate(length(min = 1))]
         pub key: String,
+    }
+
+    #[derive(Serialize, Deserialize, Validate, Debug, Default, Clone, PartialEq, Eq)]
+    pub struct KeysendParams {
+        // TODO: replace with regex check
+        #[validate(length(min = 6))]
+        pub pub_key: String,
+        pub user_id: Option<String>,
+        pub wallet_id: Option<String>,
+        pub admin_key: Option<String>,
     }
 
     #[derive(Debug, Deserialize, Serialize, Clone)]

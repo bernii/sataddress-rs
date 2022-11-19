@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// Defines a structure that we use to generate
 /// JSON response for LN URL
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Default)]
 pub struct SuccessAction {
     pub tag: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -171,6 +171,7 @@ pub mod invoice {
     /// order to create an invoice based on the input data.
     pub async fn make_invoice(
         params: &models::Params,
+        ln_host: &Uri,
         msat: u64,
         tor_proxy: Uri,
         memo: Option<String>,
@@ -274,6 +275,36 @@ pub mod invoice {
                     .method(Method::POST)
                     .uri(format!("{}/api/v1/payments", p.host))
                     .header("X-Api-Key", p.key)
+                    .header("content-type", "application/json");
+            }
+            InvoiceAPI::Keysend(p) => {
+                // reject payments lower than 3 sats
+                // as those probably won't cover payment fees
+                // and transaction will get stuck :-(
+                if msat < 3000 {
+                    bail!("less than 3sats might not cover routing fees")
+                }
+
+                body = json!({
+                    "amount": msat / 1000,
+                    "out": false,
+                });
+
+                // memo is ignored, see code links above
+                match memo {
+                    Some(memo) => {
+                        body["memo"] = serde_json::Value::String(memo);
+                    }
+                    None => {
+                        body["unhashed_description"] =
+                            serde_json::Value::String(hex::encode(metadata.to_string()));
+                    }
+                }
+
+                req = Request::builder()
+                    .method(Method::POST)
+                    .uri(format!("{}api/v1/payments", ln_host))
+                    .header("X-Api-Key", p.admin_key.unwrap())
                     .header("content-type", "application/json");
             }
         }
@@ -386,6 +417,7 @@ pub mod invoice {
             // invoke the method
             let result = make_invoice(
                 &params,
+                &"http://127.0.0.0.1".parse::<Uri>().unwrap(),
                 1000,
                 "http://127.0.0.0.1".parse::<Uri>().unwrap(),
                 Some("memo".to_string()),
