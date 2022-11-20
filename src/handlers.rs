@@ -105,7 +105,8 @@ pub async fn lnurl(
                     params.admin_key.as_ref().unwrap(),
                     None,
                     Some(memo),
-                ).await
+                )
+                .await
                 .map_err(|e| Error::Val(format!("Problem updating keysend data: {}", e)))?;
             }
             let bolt11 = make_invoice(

@@ -117,8 +117,8 @@ pub async fn update_entry(
     let scrub = scrubs.get(0).unwrap();
     api.wallet_id = Some(scrub.wallet.to_string());
 
-    let pub_key = pub_key.or(Some(&scrub.payoraddress)).unwrap();
-    let description = description.or(Some(&scrub.description)).unwrap();
+    let pub_key = pub_key.unwrap_or(&scrub.payoraddress);
+    let description = description.unwrap_or(&scrub.description);
     api.update(&scrub.id, pub_key, description).await?;
     Ok(())
 }
