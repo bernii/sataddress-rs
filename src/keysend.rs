@@ -7,11 +7,6 @@ use warp::hyper::{self, Body, Client, Method, Request, Uri};
 
 use crate::LNbitsConfig;
 
-// struct LnbitsBackend {
-//     host: Uri,
-// }
-// 03a3cdc1a3c4e8fccf6077d422c90a92f7923db9f67b13c7533edf699cf1410301
-
 pub async fn provision_backend(
     conf: &LNbitsConfig,
     username: &str,
@@ -20,8 +15,6 @@ pub async fn provision_backend(
 ) -> Result<(String, String, String), anyhow::Error> {
     let wallet_name = "scrub_wallet";
     let username = format!("{}@{}", username, domain);
-
-    // TODO: check if we already have a user created for given username
 
     let req = Request::builder()
         .method(Method::POST)
@@ -102,11 +95,15 @@ struct ScrubApiEntry {
     payoraddress: String,
 }
 
-pub async fn update_pubkey(
+pub async fn update_entry(
     conf: &LNbitsConfig,
     api_key: &str,
-    pub_key: &str,
+    pub_key: Option<&str>,
+    description: Option<&str>,
 ) -> Result<(), anyhow::Error> {
+    if pub_key.is_none() && description.is_none() {
+        bail!("Please provide new pub_key or description");
+    }
     let mut api = ScrubApi {
         host: conf.url.clone(),
         api_key: api_key.to_string(),
@@ -119,11 +116,14 @@ pub async fn update_pubkey(
     }
     let scrub = scrubs.get(0).unwrap();
     api.wallet_id = Some(scrub.wallet.to_string());
-    api.update(&scrub.id, pub_key, &scrub.description).await?;
+
+    let pub_key = pub_key.or(Some(&scrub.payoraddress)).unwrap();
+    let description = description.or(Some(&scrub.description)).unwrap();
+    api.update(&scrub.id, pub_key, description).await?;
     Ok(())
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct ScrubApi {
     host: Uri,
     api_key: String,

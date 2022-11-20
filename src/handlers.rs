@@ -96,6 +96,18 @@ pub async fn lnurl(
                 Some(s) if !s.is_empty() => Some(s.to_owned()),
                 _ => None,
             };
+            if let (Some(memo), InvoiceAPI::Keysend(params)) = (&memo, &params.invoice_api) {
+                // payment for keysend
+                // update the scrub so that it matches the comment
+                // in the request
+                keysend::update_entry(
+                    &config.lnbits,
+                    params.admin_key.as_ref().unwrap(),
+                    None,
+                    Some(memo),
+                ).await
+                .map_err(|e| Error::Val(format!("Problem updating keysend data: {}", e)))?;
+            }
             let bolt11 = make_invoice(
                 &params,
                 &config.lnbits.url,
@@ -316,7 +328,7 @@ pub async fn grab(db: Db, config: Config, buf: impl Buf) -> Result<impl Reply, R
         {
             // update keysend pubkey if we only modify the entry
             let api_key = params.admin_key.unwrap();
-            keysend::update_pubkey(&config.lnbits, &api_key, &k_params.pub_key)
+            keysend::update_entry(&config.lnbits, &api_key, Some(&k_params.pub_key), None)
                 .await
                 .map_err(|e| Error::Val(format!("Problem updating pubkey: {}", e)))?;
 
