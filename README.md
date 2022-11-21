@@ -50,6 +50,14 @@ The project consists of **server** and **cli** tool:
 * **Server** is responsible for handling requests from *LN wallets* and serving the alias reservation page and APIs.
 * **CLI tool** can be used to interact with the embedded database in order to export/import data or generate usage statistics.
 
+## Keysend
+
+Currently `sataddress` is the only federated server supporting keysend (pubkey) aliasing implementation.
+
+The solution is being achieved by introducing an intermediate lightning node which recieves payments and forwards them automatically to the desination node.
+
+Thanks to the setup above, the user does not have to expose the API (including secrets) of their Lightning Node and is able to recieve payments passively.
+
 ## Getting Started
 
 First, check out the *latest deployed version* at [satspay.to](https://satspay.to/)
@@ -64,6 +72,10 @@ DOMAINS=sataddress.rs,another-domain.com
 PIN_SECRET=my-secret-phrase
 SITE_NAME=SATADDRESS
 SITE_SUB_NAME=.rs
+# keysend requires lnbits proxy to work
+LNBITS_URL=http://127.0.0.1:5001
+LNBITS_API_KEY=THE_API_KEY
+LNBITS_ADMIN_ID=ADMIN_ID_UNDER_WHICH_SUBACCOUNTS_ARE_CREATED
 ```
 
 Once you have your config figured out, just run the container:
@@ -79,6 +91,7 @@ $ just run
 
 ## Roadmap
 
+- [x] keysend support
 - [ ] improve tests
 - [ ] add REST API functionality for data manipulation
 - [ ] better error generation & handling
