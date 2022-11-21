@@ -93,6 +93,7 @@ struct ScrubApiEntry {
     description: String,
     wallet: String,
     payoraddress: String,
+    deduct_fee: bool,
 }
 
 pub async fn update_entry(
@@ -161,6 +162,7 @@ impl ScrubApi {
             "wallet": self.wallet_id,
             "description": description,
             "payoraddress": pub_key,
+            "deduct_fee": true,
         });
         let req = req.body(Body::from(body.to_string()))?;
         let resp = client.request(req).await?;
@@ -184,6 +186,7 @@ impl ScrubApi {
             "wallet": self.wallet_id,
             "description": description,
             "payoraddress": pub_key,
+            "deduct_fee": true,
         });
         let req = req.body(Body::from(body.to_string()))?;
         let resp = client.request(req).await?;
