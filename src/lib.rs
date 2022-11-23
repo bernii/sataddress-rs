@@ -2,6 +2,8 @@
 //!
 //! The federated server allows you to easily handle LN Address
 //! requests and add those capabilties to the domains you own.
+//!
+//! Now with **keysend** support!
 
 use std::net::IpAddr;
 
