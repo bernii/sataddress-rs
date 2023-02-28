@@ -34,7 +34,7 @@ RUN addgroup -S $APP_USER \
     && adduser -S -g $APP_USER $APP_USER
 
 RUN apk update \
-    && apk add --no-cache ca-certificates tzdata libgcc just \
+    && apk add --no-cache ca-certificates tzdata libgcc just openssl \
     && rm -rf /var/cache/apk/*
 
 WORKDIR ${APP}
