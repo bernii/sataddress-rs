@@ -23,9 +23,9 @@
     <img src="https://raw.githubusercontent.com/bernii/sataddress-rs/7a09f16a116f1211d1e961bc7e78a1add88f6a4e/assets/inv_banner.png" alt="SatAddress RS logo" width="80">
   </a>
 
-<h2 align="center">Lightning address federated server implementation in Rust</h3>
+<h2 align="center">Lightning address federated server implementation in Rust</h2>
   <p align="center">
-    <a href="https://satspay.to"><strong>Live Version</strong></a> | 
+    <a href="https://satspay.to"><strong>Live Version</strong></a> |
     <a href="https://docs.rs/sataddress/latest/sataddress/index.html"><strong>Documentation</strong></a>
     <br />
     <br />
@@ -42,9 +42,9 @@
 
 This is a [rust](https://www.rust-lang.org/) implementation of Federated [Lightning Address](https://lightningaddress.com/) Server.
 
-Lightning address / alias helps with greatly improving the user experience of using LN payments by using email-like addresses for recieving and sending bitcoin lightning payments.
+Lightning address / alias helps with greatly improving the user experience of using LN payments by using email-like addresses for receiving and sending bitcoin lightning payments.
 
-The federated server allows you to easily handle LN Address requests and add those capabilties to the domains you own.
+The federated server allows you to easily handle LN Address requests and add those capabilities to the domains you own.
 
 The project consists of **server** and **cli** tool:
 * **Server** is responsible for handling requests from *LN wallets* and serving the alias reservation page and APIs.
@@ -54,9 +54,9 @@ The project consists of **server** and **cli** tool:
 
 Currently `sataddress` is the only federated server supporting keysend (pubkey) aliasing implementation.
 
-The solution is being achieved by introducing an intermediate lightning node which recieves payments and forwards them automatically to the desination node.
+The solution is being achieved by introducing an intermediate lightning node which receives payments and forwards them automatically to the destination node.
 
-Thanks to the setup above, the user does not have to expose the API (including secrets) of their Lightning Node and is able to recieve payments passively.
+Thanks to the setup above, the user does not have to expose the API (including secrets) of their Lightning Node and is able to receive payments passively.
 
 ## Getting Started
 
@@ -64,7 +64,7 @@ First, check out the *latest deployed version* at [satspay.to](https://satspay.t
 
 The easiest way to run the server is just using the automatically published docker container.
 
-You can configure the container easily by providing enivronment variables either by passing them to docker or by putting them into `dot-env` file.
+You can configure the container easily by providing environment variables either by passing them to docker or by putting them into `dot-env` file.
 
 ```
 # .env file
@@ -84,7 +84,7 @@ Once you have your config figured out, just run the container:
 $ docker run -v $(pwd)/.env:/opt/sataddress/.env -v $(pwd)/sataddress.db:/opt/sataddress/sataddress.db --name sataddress -it --rm sataddress:latest
 ```
 
-As an alternative, if you're familiar with the rust toolset, you can use [just](https://github.com/casey/just) which will also automatically load your `.env` file. 
+As an alternative, if you're familiar with the rust toolset, you can use [just](https://github.com/casey/just) which will also automatically load your `.env` file.
 ```bash
 $ just run
 ```
